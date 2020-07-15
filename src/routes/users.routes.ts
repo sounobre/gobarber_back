@@ -1,8 +1,12 @@
 import { Router } from 'express';
+import multer from 'multer';
+import uploadConfig from '../config/upload';
 import CreateUserService from '../services/CreateUsersService';
 import ensureAuthenticated from '../middlewares/ensureAuthenticated';
+import UpdateUserAvatarService from '../services/UpdateUserAvatarService';
 
 const usersRouter = Router();
+const upload = multer(uploadConfig);
 
 usersRouter.post('/', async (request, response) => {
   try {
@@ -22,6 +26,21 @@ usersRouter.post('/', async (request, response) => {
   }
 });
 
-usersRouter.patch('/avatar', ensureAuthenticated, async (request, response) => response.json({ ok: true }));
+usersRouter.patch('/avatar', ensureAuthenticated, upload.single('avatar'), async (request, response) => {
+  try {
+    const updateUserAvatarService = new UpdateUserAvatarService();
 
+    const user = await updateUserAvatarService.execute({
+      user_id: request.user.id,
+      avatarFileName: request.file.filename,
+    });
+
+    delete user.password;
+
+    return response.json(user);
+  } catch (err) {
+    return response.status(400).json({ error: err.message });
+  }
+});
 export default usersRouter;
+// iniciar os arquivos estáticos.
