@@ -17,6 +17,9 @@
   ],
   "rules": {
     "camelcase": 0,
+    "@typescript-eslint/no-unused-vars":["error", {
+      "argsIgnorePattern": "_"
+    }],
     "class-methods-use-this": 0,
      "import/extensions": [
       "error",
